@@ -30,18 +30,21 @@ export default class Demo extends Phaser.Scene
         platforms.create(600, 400, 'ground');
         platforms.create(50, 250, 'ground');
         platforms.create(740,220, 'ground');
+        return platforms;
     }
 
     create ()
     {
         this.add.image(400,300,'sky');
 
-        this.addPlatforms();
+        let platforms = this.addPlatforms();
 
         //add player sprite with collison
         let player = this.physics.add.sprite(100,450,'dude');
         player.setBounce(0.2);
         player.setCollideWorldBounds(true);
+
+        this.physics.add.collider(player, platforms);
 
         //load player animations and which frames to use
         this.anims.create({
