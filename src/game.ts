@@ -6,6 +6,9 @@ export default class Demo extends Phaser.Scene
     platforms: Phaser.Physics.Arcade.StaticGroup;
     score: integer;
     scoreText: Phaser.GameObjects.Text;
+    bombs: Phaser.Physics.Arcade.Group;
+    gameOver: boolean;
+
     constructor ()
     {
         super('demo');
@@ -63,11 +66,28 @@ export default class Demo extends Phaser.Scene
         });
     }
 
-    collectStar(player, star)
+    collectStar(player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, star)
     {
         star.disableBody(true,true)
         this.score += 10;
         this.scoreText.setText('Score: ' + this.score);
+
+        //add bomb so level gets harder each star you collect
+        let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+        let bomb = this.bombs.create(x, 16, 'bomb');
+        bomb.setBounce(1);
+        bomb.setCollideWorldBounds(true);
+        bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+    }
+
+    hitBomb(player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, hitBomb) {
+        this.physics.pause();
+
+        player.setTint(0xff0000);
+
+        player.anims.play('turn');
+
+        this.gameOver = true;
     }
 
     create ()
@@ -93,7 +113,7 @@ export default class Demo extends Phaser.Scene
         
         /*
         stars.children.iterate(function (child) {
-
+            //Not working, ts complains it doesn't exist on game object
             child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
 
         });
@@ -104,9 +124,19 @@ export default class Demo extends Phaser.Scene
         this.physics.add.overlap(this.player, stars, this.collectStar, null, this);
 
         this.scoreText = this.add.text(16,16,'score: 0', {fontSize: '32px'})
+
+        this.bombs = this.physics.add.group();
+        this.physics.add.collider(this.bombs, this.platforms);
+
+        this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
     }
+    
     update() {
         let cursors = this.input.keyboard.createCursorKeys();
+        
+        //stop game if over, TODO: add nice retry button or something instead
+        if(this.gameOver) return;
+        
         if (cursors.left.isDown) 
         {
             this.player.setVelocityX(-160);
@@ -145,3 +175,5 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+
