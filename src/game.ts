@@ -4,9 +4,12 @@ export default class Demo extends Phaser.Scene
 {
     player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     platforms: Phaser.Physics.Arcade.StaticGroup;
+    score: integer;
+    scoreText: Phaser.GameObjects.Text;
     constructor ()
     {
         super('demo');
+        this.score = 0
     }
 
     
@@ -60,6 +63,13 @@ export default class Demo extends Phaser.Scene
         });
     }
 
+    collectStar(player, star)
+    {
+        star.disableBody(true,true)
+        this.score += 10;
+        this.scoreText.setText('Score: ' + this.score);
+    }
+
     create ()
     {
         this.add.image(400,300,'sky');
@@ -74,7 +84,26 @@ export default class Demo extends Phaser.Scene
         this.physics.add.collider(this.player, this.platforms);
 
         this.addPlayerAnimations();
+
+        let stars = this.physics.add.group({
+            key: 'star',
+            repeat: 11,
+            setXY: {x: 12, y: 0, stepX: 70}
+        });
         
+        /*
+        stars.children.iterate(function (child) {
+
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+
+        });
+        */
+
+        this.physics.add.collider(stars,this.platforms);
+
+        this.physics.add.overlap(this.player, stars, this.collectStar, null, this);
+
+        this.scoreText = this.add.text(16,16,'score: 0', {fontSize: '32px'})
     }
     update() {
         let cursors = this.input.keyboard.createCursorKeys();
