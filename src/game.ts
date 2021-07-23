@@ -20,11 +20,9 @@ export default class Demo extends Phaser.Scene
         );
     }
 
-    create ()
+    //set up ground platforms using physics static group: can't move around
+    addPlatforms()
     {
-        this.add.image(400,300,'sky');
-
-        //set up ground platforms using physics static group?
         let platforms = this.physics.add.staticGroup();
         platforms.create(400, 568, 'ground')
             .setScale(2)
@@ -32,6 +30,39 @@ export default class Demo extends Phaser.Scene
         platforms.create(600, 400, 'ground');
         platforms.create(50, 250, 'ground');
         platforms.create(740,220, 'ground');
+    }
+
+    create ()
+    {
+        this.add.image(400,300,'sky');
+
+        this.addPlatforms();
+
+        //add player sprite with collison
+        let player = this.physics.add.sprite(100,450,'dude');
+        player.setBounce(0.2);
+        player.setCollideWorldBounds(true);
+
+        //load player animations and which frames to use
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'turn',
+            frames: [ {key: 'dude', frame: 4}],
+            frameRate: 20
+        });
+
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8}),
+            frameRate: 10,
+            repeat: -1
+        });
     }
 }
 
