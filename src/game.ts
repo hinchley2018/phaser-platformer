@@ -8,11 +8,16 @@ export default class Demo extends Phaser.Scene
     scoreText: Phaser.GameObjects.Text;
     bombs: Phaser.Physics.Arcade.Group;
     gameOver: boolean;
-
+    maxScore: number;
+    starValue: number;
+    numberStars: number;
     constructor ()
     {
         super('demo');
-        this.score = 0
+        this.score = 0;
+        this.starValue = 10;
+        this.numberStars = 10;
+        this.maxScore = this.numberStars * this.starValue;
     }
 
     
@@ -69,7 +74,7 @@ export default class Demo extends Phaser.Scene
     collectStar(player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, star)
     {
         star.disableBody(true,true)
-        this.score += 10;
+        this.score += this.starValue;
         this.scoreText.setText('Score: ' + this.score);
 
         //add bomb so level gets harder each star you collect
@@ -107,7 +112,7 @@ export default class Demo extends Phaser.Scene
 
         let stars = this.physics.add.group({
             key: 'star',
-            repeat: 11,
+            repeat: this.numberStars -1,
             setXY: {x: 12, y: 0, stepX: 70}
         });
         
@@ -135,7 +140,18 @@ export default class Demo extends Phaser.Scene
         let cursors = this.input.keyboard.createCursorKeys();
         
         //stop game if over, TODO: add nice retry button or something instead
-        if(this.gameOver) return;
+        if (this.gameOver) 
+        {
+            this.add.text(100,100,'Game Over', {fontSize: '64px'})
+            return;
+        }
+
+        if (this.score === this.maxScore)
+        {
+            this.player.setVelocityX(0);
+            this.add.text(100,100,'You Win', {fontSize: '64px'})
+            return;
+        }
         
         if (cursors.left.isDown) 
         {
