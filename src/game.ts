@@ -134,6 +134,16 @@ export default class Demo extends Phaser.Scene
         this.physics.add.collider(this.bombs, this.platforms);
 
         this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
+
+        //adds docs to screen
+        let div = document.createElement("div");
+        div.innerText = "Made with Phaser (html, js)";
+        let a = document.createElement("a");
+        a.setAttribute("href","https://github.com/hinchley2018/phaser-platformer" )
+        a.innerText = "View this project on GitHub"
+        document.body.append(div);
+        document.body.append(a);
+        
     }
     
     update() {
